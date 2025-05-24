@@ -1,122 +1,90 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Sprout,
-  Brain,
   TrendingUp,
   MapPin,
-  Zap,
-  Target,
-  BarChart3,
-  Lightbulb,
-  MessageSquare,
-  Send,
-  Sparkles,
-  Clock,
-  DollarSign,
-  Leaf,
-  Home,
-  Settings,
   Bell,
+  Star,
+  Phone,
+  MessageCircle,
+  BarChart3,
+  Leaf,
+  Heart,
+  Zap,
+  Globe,
+  Shield,
+  MessageSquare,
+  Settings,
+  HelpCircle,
 } from "lucide-react"
 import Link from "next/link"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-export default function AIInsightsPage() {
-  const [chatMessages, setChatMessages] = useState([
-    {
-      id: 1,
-      type: "ai",
-      message:
-        "Hello! I'm your AI farming assistant. I can help you with market analysis, crop recommendations, pricing strategies, and more. What would you like to know?",
-      timestamp: new Date(),
-    },
+export default function HomePage() {
+  const [currentPrice, setCurrentPrice] = useState(45)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [messages, setMessages] = useState([
+    { text: "Welcome to AgriConnect AI! How can I help you today?", sender: "ai" },
   ])
-  const [inputMessage, setInputMessage] = useState("")
+  const [newMessage, setNewMessage] = useState("")
+  const chatContainerRef = useRef(null)
 
-  const insights = [
-    {
-      title: "Optimal Harvest Timing",
-      description:
-        "Based on weather patterns and market demand, harvest your tomatoes in the next 48 hours for maximum profit.",
-      confidence: 94,
-      impact: "High",
-      category: "Timing",
-      action: "Schedule harvest for tomorrow morning",
-    },
-    {
-      title: "Price Prediction",
-      description: "Onion prices are expected to rise 18% next week due to supply shortage in neighboring regions.",
-      confidence: 87,
-      impact: "High",
-      category: "Pricing",
-      action: "Hold inventory for 5-7 days",
-    },
-    {
-      title: "New Market Opportunity",
-      description:
-        "Organic certification could increase your crop value by 35%. Consider transitioning 30% of your land.",
-      confidence: 82,
-      impact: "Medium",
-      category: "Strategy",
-      action: "Research organic certification process",
-    },
-    {
-      title: "Crop Diversification",
-      description: "Bell peppers show strong demand growth. Consider allocating 20% of next season to this crop.",
-      confidence: 78,
-      impact: "Medium",
-      category: "Planning",
-      action: "Plan for next planting season",
-    },
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsAnimating(true)
+      setCurrentPrice((prev) => prev + (Math.random() - 0.5) * 4)
+      setTimeout(() => setIsAnimating(false), 500)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    // Scroll to the bottom of the chat container when new messages are added
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+    }
+  }, [messages])
+
+  const marketData = [
+    { crop: "Tomatoes", price: 45, trend: "+12%", location: "Downtown Market", distance: "2.3 km" },
+    { crop: "Onions", price: 32, trend: "+8%", location: "Farmers Hub", distance: "1.8 km" },
+    { crop: "Carrots", price: 28, trend: "-3%", location: "Green Valley", distance: "4.1 km" },
+    { crop: "Potatoes", price: 22, trend: "+15%", location: "City Center", distance: "3.2 km" },
   ]
 
-  const marketPredictions = [
-    { crop: "Tomatoes", currentPrice: 45, predictedPrice: 52, change: "+15.6%", timeframe: "7 days" },
-    { crop: "Onions", currentPrice: 32, predictedPrice: 38, change: "+18.8%", timeframe: "10 days" },
-    { crop: "Carrots", currentPrice: 28, predictedPrice: 26, change: "-7.1%", timeframe: "5 days" },
-    { crop: "Potatoes", currentPrice: 22, predictedPrice: 25, change: "+13.6%", timeframe: "14 days" },
+  const buyers = [
+    { name: "Fresh Foods Co.", rating: 4.8, orders: 156, specialty: "Organic Vegetables" },
+    { name: "Green Market Ltd.", rating: 4.6, orders: 89, specialty: "Local Produce" },
+    { name: "Farm to Table", rating: 4.9, orders: 203, specialty: "Premium Quality" },
   ]
 
   const handleSendMessage = () => {
-    if (!inputMessage.trim()) return
-
-    const newMessage = {
-      id: chatMessages.length + 1,
-      type: "user",
-      message: inputMessage,
-      timestamp: new Date(),
+    if (newMessage.trim() !== "") {
+      setMessages([...messages, { text: newMessage, sender: "user" }])
+      // Simulate AI response
+      setTimeout(() => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: "Thanks for your question! We're processing your request...", sender: "ai" },
+        ])
+        setTimeout(() => {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              text: "Based on current market trends, we recommend focusing on Tomatoes and Potatoes this season.",
+              sender: "ai",
+            },
+          ])
+        }, 1500)
+      }, 1000)
+      setNewMessage("")
     }
-
-    setChatMessages([...chatMessages, newMessage])
-    setInputMessage("")
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse = {
-        id: chatMessages.length + 2,
-        type: "ai",
-        message: generateAIResponse(inputMessage),
-        timestamp: new Date(),
-      }
-      setChatMessages((prev) => [...prev, aiResponse])
-    }, 1000)
-  }
-
-  const generateAIResponse = (userMessage: string) => {
-    const responses = [
-      "Based on current market data, I recommend focusing on tomatoes this week. Prices are trending upward and demand is high.",
-      "Your crop rotation strategy looks good! Consider adding legumes to improve soil nitrogen for next season.",
-      "Weather patterns suggest optimal planting conditions in 3-5 days. I'll send you a reminder.",
-      "Market analysis shows strong demand for organic produce in your area. Would you like me to analyze certification costs?",
-      "Your current pricing is competitive. However, I've identified 3 buyers willing to pay 12% above market rate.",
-    ]
-    return responses[Math.floor(Math.random() * responses.length)]
   }
 
   return (
@@ -124,229 +92,385 @@ export default function AIInsightsPage() {
       {/* Navigation */}
       <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-                <Sprout className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                AgriConnect
-              </span>
-            </Link>
-            <div className="hidden md:flex items-center space-x-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm">
-                  <Home className="w-4 h-4 mr-2" />
-                  Dashboard
-                </Button>
-              </Link>
-              <Button variant="ghost" size="sm" className="bg-green-100 text-green-700">
-                <Brain className="w-4 h-4 mr-2" />
-                AI Insights
-              </Button>
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+              <Sprout className="w-5 h-5 text-white" />
             </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              AgriConnect
+            </span>
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="ghost" size="sm">
-              <Bell className="w-4 h-4" />
+              <Bell className="w-4 h-4 mr-2" />
+              Alerts
             </Button>
-            <Button variant="ghost" size="sm">
-              <Settings className="w-4 h-4" />
-            </Button>
-            <Avatar className="w-8 h-8">
-              <AvatarImage src="/placeholder.svg?height=32&width=32" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
+            <Link href="/dashboard">
+              <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+                Dashboard
+              </Button>
+            </Link>
           </div>
         </div>
       </nav>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 flex items-center">
-            <Brain className="w-8 h-8 mr-3 text-purple-500" />
-            AI-Powered Insights
-          </h1>
-          <p className="text-gray-600">
-            Get personalized recommendations and market intelligence powered by advanced AI
-          </p>
-        </div>
+      <Tabs defaultValue="dashboard" className="container mx-auto px-4 py-8">
+        <TabsList className="grid w-full grid-cols-1 md:grid-cols-4">
+          <TabsTrigger value="dashboard">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="ai">
+            <Zap className="w-4 h-4 mr-2" />
+            AI Insights
+          </TabsTrigger>
+          <TabsTrigger value="market">
+            <Leaf className="w-4 h-4 mr-2" />
+            Market Data
+          </TabsTrigger>
+          <TabsTrigger value="account">
+            <Settings className="w-4 h-4 mr-2" />
+            Account
+          </TabsTrigger>
+        </TabsList>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Insights */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Smart Recommendations */}
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Sparkles className="w-5 h-5 mr-2 text-yellow-500" />
-                  Smart Recommendations
-                </CardTitle>
-                <CardDescription>AI-generated insights tailored to your farm and market conditions</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {insights.map((insight, index) => (
+        <TabsContent value="dashboard" className="mt-8">
+          {/* Hero Section */}
+          <section className="text-center mb-12">
+            <div className="max-w-4xl mx-auto">
+              <div className="inline-flex items-center space-x-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <Zap className="w-4 h-4" />
+                <span>AI-Powered Market Intelligence</span>
+              </div>
+
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                Connect. Sell. Thrive.
+              </h1>
+
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                Empowering small-scale farmers with real-time market insights, direct buyer connections, and AI-driven
+                recommendations to maximize profits and reduce waste.
+              </p>
+            </div>
+          </section>
+
+          {/* Live Market Preview */}
+          <Card className="max-w-md mx-auto bg-white/80 backdrop-blur-sm border-green-200 mb-8">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 mr-2 text-green-500" />
+                Live Market Price
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600 mb-1">${currentPrice.toFixed(2)}</div>
+                <div className="text-sm text-gray-500 mb-3">per kg - Tomatoes</div>
+                <div
+                  className={`inline-flex items-center space-x-1 transition-all duration-500 ${isAnimating ? "scale-110" : ""}`}
+                >
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <span className="text-green-500 font-medium">+12% today</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Stats Section */}
+          <section className="bg-gradient-to-r from-green-500 to-emerald-500 text-white py-8 rounded-lg shadow-md">
+            <div className="grid md:grid-cols-4 gap-4 text-center">
+              <div>
+                <div className="text-3xl font-bold mb-2">2,500+</div>
+                <div className="text-green-100">Active Farmers</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold mb-2">$2.3M</div>
+                <div className="text-green-100">Revenue Generated</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold mb-2">850+</div>
+                <div className="text-green-100">Verified Buyers</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold mb-2">98%</div>
+                <div className="text-green-100">Satisfaction Rate</div>
+              </div>
+            </div>
+          </section>
+        </TabsContent>
+
+        <TabsContent value="ai" className="mt-8">
+          {/* AI Insights Section */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">AI-Powered Insights</h2>
+            <p className="text-gray-600">
+              Get personalized recommendations to optimize your farming practices and maximize profits.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4 mt-6">
+              <Card className="bg-white/80 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle>Crop Planning</CardTitle>
+                  <CardDescription>Optimal planting schedules based on weather and market trends.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-500">Recommended crops for the next season: Tomatoes, Potatoes</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle>Pricing Strategy</CardTitle>
+                  <CardDescription>AI-driven pricing recommendations for your produce.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-500">Suggested price for Tomatoes: $48/kg</p>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* AI Chat Component */}
+          <section>
+            <h2 className="text-2xl font-bold mb-4">Ask AI</h2>
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4">
+              <div ref={chatContainerRef} className="h-64 overflow-y-auto mb-4 p-2 rounded-md bg-gray-100/50">
+                {messages.map((message, index) => (
                   <div
                     key={index}
-                    className="p-6 border rounded-lg hover:shadow-md transition-all duration-300 hover:border-green-300"
+                    className={`mb-2 p-2 rounded-md ${
+                      message.sender === "user"
+                        ? "bg-blue-100 ml-auto w-fit max-w-[70%]"
+                        : "bg-green-100 mr-auto w-fit max-w-[70%]"
+                    }`}
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="font-semibold text-lg">{insight.title}</h3>
-                          <Badge variant="outline" className="text-xs">
-                            {insight.category}
-                          </Badge>
-                        </div>
-                        <p className="text-gray-600 mb-3">{insight.description}</p>
-                        <div className="flex items-center space-x-4 mb-4">
-                          <div className="flex items-center space-x-2">
-                            <Target className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm text-gray-500">Confidence: {insight.confidence}%</span>
-                          </div>
-                          <Badge variant={insight.impact === "High" ? "default" : "secondary"}>
-                            {insight.impact} Impact
-                          </Badge>
-                        </div>
-                        <div className="flex items-center text-sm text-green-600 font-medium">
-                          <Lightbulb className="w-4 h-4 mr-1" />
-                          {insight.action}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" className="bg-gradient-to-r from-green-500 to-emerald-500">
-                        Apply Recommendation
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        Learn More
-                      </Button>
-                    </div>
+                    <span className="text-sm">{message.text}</span>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  className="flex-grow border rounded-l-md py-2 px-3 text-sm"
+                  placeholder="Type your question..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSendMessage()
+                    }
+                  }}
+                />
+                <Button
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-l-none"
+                  onClick={handleSendMessage}
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Send
+                </Button>
+              </div>
+            </div>
+          </section>
+        </TabsContent>
 
-            {/* Market Predictions */}
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <TrendingUp className="w-5 h-5 mr-2 text-blue-500" />
-                  Price Predictions
-                </CardTitle>
-                <CardDescription>AI-powered price forecasts based on market trends and historical data</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {marketPredictions.map((prediction, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+        <TabsContent value="market" className="mt-8">
+          {/* Market Data Preview */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Today's Market Opportunities</h2>
+            <p className="text-gray-600">Live data from local markets and buyers in your area</p>
+          </section>
+
+          <Tabs defaultValue="markets" className="max-w-4xl mx-auto">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="markets">Market Prices</TabsTrigger>
+              <TabsTrigger value="buyers">Active Buyers</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="markets" className="space-y-4">
+              {marketData.map((item, index) => (
+                <Card key={index} className="bg-white/80 backdrop-blur-sm hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-400 rounded-lg flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-400 rounded-lg flex items-center justify-center">
                           <Leaf className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <h3 className="font-semibold">{prediction.crop}</h3>
-                          <p className="text-sm text-gray-500">Current: ${prediction.currentPrice}/kg</p>
+                          <h3 className="font-semibold text-lg">{item.crop}</h3>
+                          <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <MapPin className="w-4 h-4" />
+                            <span>
+                              {item.location} • {item.distance}
+                            </span>
+                          </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="text-lg font-bold">${prediction.predictedPrice}</span>
-                          <Badge variant={prediction.change.startsWith("+") ? "default" : "destructive"}>
-                            {prediction.change}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Clock className="w-4 h-4 mr-1" />
-                          {prediction.timeframe}
-                        </div>
+                        <div className="text-2xl font-bold text-green-600">${item.price}</div>
+                        <Badge variant={item.trend.startsWith("+") ? "default" : "secondary"} className="mt-1">
+                          {item.trend}
+                        </Badge>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </TabsContent>
 
-          {/* Right Column - AI Chat */}
-          <div className="space-y-8">
-            {/* AI Assistant Chat */}
-            <Card className="bg-white/80 backdrop-blur-sm h-[600px] flex flex-col">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MessageSquare className="w-5 h-5 mr-2 text-green-500" />
-                  AI Assistant
-                </CardTitle>
-                <CardDescription>
-                  Ask questions about your farm, market trends, or get personalized advice
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
-                <div className="flex-1 overflow-y-auto space-y-4 mb-4">
-                  {chatMessages.map((message, index) => (
-                    <div key={index} className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}>
-                      <div
-                        className={`max-w-[80%] p-3 rounded-lg ${
-                          message.type === "user"
-                            ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        <p className="text-sm">{message.message}</p>
-                        <p className={`text-xs mt-1 ${message.type === "user" ? "text-green-100" : "text-gray-500"}`}>
-                          {message.timestamp.toLocaleTimeString()}
-                        </p>
+            <TabsContent value="buyers" className="space-y-4">
+              {buyers.map((buyer, index) => (
+                <Card key={index} className="bg-white/80 backdrop-blur-sm hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <Avatar className="w-12 h-12">
+                          <AvatarImage src={`/placeholder.svg?height=48&width=48`} />
+                          <AvatarFallback>
+                            {buyer.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-semibold text-lg">{buyer.name}</h3>
+                          <p className="text-sm text-gray-500">{buyer.specialty}</p>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="text-sm font-medium">{buyer.rating}</span>
+                            <span className="text-sm text-gray-500">• {buyer.orders} orders</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline">
+                          <MessageCircle className="w-4 h-4 mr-1" />
+                          Chat
+                        </Button>
+                        <Button size="sm" className="bg-gradient-to-r from-green-500 to-emerald-500">
+                          <Phone className="w-4 h-4 mr-1" />
+                          Call
+                        </Button>
                       </div>
                     </div>
-                  ))}
-                </div>
-                <div className="flex space-x-2">
-                  <Input
-                    placeholder="Ask your AI assistant..."
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                    className="flex-1"
-                  />
-                  <Button onClick={handleSendMessage} size="sm">
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              ))}
+            </TabsContent>
+          </Tabs>
+        </TabsContent>
 
-            {/* Quick Actions */}
-            <Card className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Zap className="w-5 h-5 mr-2" />
-                  Quick AI Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button variant="secondary" className="w-full justify-start text-gray-800">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Analyze Market Trends
-                </Button>
-                <Button variant="secondary" className="w-full justify-start text-gray-800">
-                  <DollarSign className="w-4 h-4 mr-2" />
-                  Optimize Pricing Strategy
-                </Button>
-                <Button variant="secondary" className="w-full justify-start text-gray-800">
-                  <Leaf className="w-4 h-4 mr-2" />
-                  Plan Next Season
-                </Button>
-                <Button variant="secondary" className="w-full justify-start text-gray-800">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Find New Markets
-                </Button>
+        <TabsContent value="account" className="mt-8">
+          {/* Account Settings */}
+          <section>
+            <h2 className="text-2xl font-bold mb-4">Account Settings</h2>
+            <Card className="bg-white/80 backdrop-blur-sm">
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-semibold mb-2">Profile Information</h3>
+                    <p className="text-sm text-gray-500">Update your profile details.</p>
+                  </div>
+                  <div>
+                    <Button variant="outline">Edit Profile</Button>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Notifications</h3>
+                    <p className="text-sm text-gray-500">Manage your notification preferences.</p>
+                  </div>
+                  <div>
+                    <Button variant="outline">Manage Notifications</Button>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Help & Support</h3>
+                    <p className="text-sm text-gray-500">Get help with AgriConnect.</p>
+                  </div>
+                  <div>
+                    <Button variant="outline">
+                      <HelpCircle className="w-4 h-4 mr-2" />
+                      Help Center
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
+          </section>
+        </TabsContent>
+      </Tabs>
+
+      {/* CTA Section */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Farm?</h2>
+          <p className="text-gray-600 mb-8">
+            Join thousands of farmers who've increased their profits by 40% on average using AgriConnect.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/dashboard">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+              >
+                <Heart className="w-5 h-5 mr-2" />
+                Start Your Journey
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline">
+              <Globe className="w-5 h-5 mr-2" />
+              Learn More
+            </Button>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                  <Sprout className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold">AgriConnect</span>
+              </div>
+              <p className="text-gray-400">
+                Empowering farmers with AI-driven market intelligence and direct buyer connections.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Platform</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>Market Prices</li>
+                <li>Buyer Network</li>
+                <li>AI Insights</li>
+                <li>Mobile App</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Support</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>Help Center</li>
+                <li>Contact Us</li>
+                <li>Training</li>
+                <li>Community</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Security</h3>
+              <div className="flex items-center space-x-2 text-gray-400">
+                <Shield className="w-4 h-4" />
+                <span>Enterprise-grade security</span>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 AgriConnect. Built with ❤️ for farmers worldwide.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
+
 
